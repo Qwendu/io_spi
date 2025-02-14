@@ -1,26 +1,41 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Fri Feb 14 16:42:24 2025
+[*] Fri Feb 14 19:38:42 2025
 [*]
 [dumpfile] "/mnt/d/dev/projects/io_spi/.build/test_spi_rx.vcd"
-[dumpfile_mtime] "Fri Feb 14 16:42:14 2025"
-[dumpfile_size] 12318
+[dumpfile_mtime] "Fri Feb 14 19:38:12 2025"
+[dumpfile_size] 25492
 [savefile] "/mnt/d/dev/projects/io_spi/test_spi_rx.gtkw"
 [timestart] 1
-[size] 1000 600
+[size] 1908 1047
 [pos] -1 -1
-*-8.443725 2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-9.107257 396 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
+[treeopen] TOP.spi_rx.
 [sst_width] 214
-[signals_width] 182
+[signals_width] 190
 [sst_expanded] 1
-[sst_vpaned_height] 151
+[sst_vpaned_height] 308
 @28
 TOP.SPI_clock
-TOP.SPI_in
-TOP.SPI_not_chip_select
-TOP.SPI_out
+TOP.spi_rx.SPI_in
 @29
-TOP.clock
+TOP.spi_rx.SPI_in_sampled
+@28
+TOP.SPI_out
+@22
+TOP.out_data[7:0]
+@28
+TOP.out_data_ready
+TOP.out_data_valid
+@22
+TOP.spi_rx.state[3:0]
+@24
+TOP.spi_rx.out_bit_counter[2:0]
+@28
+TOP.spi_rx.SPI_clock_falling
+TOP.spi_rx.clock
+@22
+TOP.spi_rx.out_data_r[7:0]
 [pattern_trace] 1
 [pattern_trace] 0

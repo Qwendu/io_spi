@@ -1,8 +1,6 @@
 `default_nettype none
 `timescale 10ns/1ns
 
-// verilator lint_off UNDRIVEN
-// verilator lint_off UNUSEDSIGNAL
 // CPOL=1
 // CPHA=1
 module spi_rx (
@@ -16,12 +14,18 @@ module spi_rx (
 
 	output reg   in_data_valid,
 	output [7:0] in_data,
-	input        in_data_ready,
+	// DO not wait for the next module to be ready, blocking will miss SPI data! input        in_data_ready,
 
+/* verilator lint_off UNUSED */
 	input        out_data_valid,
+
 	input  [7:0] out_data,
+/* verilator lint_on UNUSED */
 	output reg   out_data_ready
 );
+	/* verilator lint_off UNUSED */
+	wire [7:0] unused;
+	/* verilator lint_on UNUSED */
 	wire SPI_clock_sampled, SPI_clock_rising, SPI_clock_falling;
 	sampler SPI_clock_sampler(
 		.clock(clock),
@@ -49,16 +53,6 @@ module spi_rx (
 		.falling(SPI_in_falling),
 		.rising(SPI_in_rising)
 	);
-	wire SPI_out_sampled, SPI_out_rising, SPI_out_falling;
-	sampler SPI_out_sampler(
-		.clock(clock),
-		.reset(reset),
-		.signal(SPI_out),
-		.sampled_signal(SPI_out_sampled),
-		.falling(SPI_out_falling),
-		.rising(SPI_out_rising)
-	);
-
 	wire [7:0] SPI_in_shift_data;
 	serial_in_parallel_out #(.DATA_WIDTH(8)) SPI_in_shifter (
 		.clock(clock),
@@ -67,25 +61,24 @@ module spi_rx (
 		.signal(SPI_in_sampled),
 		.data(SPI_in_shift_data)
 	);
+	assign in_data = SPI_in_shift_data;
 
 	localparam STATE_idle = 0;
 	localparam STATE_io   = 1;
 
 	reg [3:0] state = STATE_idle;
-	reg [2:0] bit_counter;
+	reg [2:0] in_bit_counter;
 
 	always @(posedge clock)
 	if(reset)
-		bit_counter <= 0;
+		in_bit_counter <= 0;
 	else case(state)
 	STATE_io:
 	begin
 		if(SPI_clock_rising)
-			bit_counter <= bit_counter + 1;
-		else if(bit_counter == 7)
-			bit_counter <= 0;
-
-		if(bit_counter == 7)
+			in_bit_counter <= in_bit_counter + 1;
+		
+		if(in_bit_counter == 7 && SPI_clock_rising)
 			in_data_valid <= 1'b1;
 		else
 			in_data_valid <= 1'b0;
@@ -103,5 +96,36 @@ module spi_rx (
 		if(SPI_not_chip_select_rising)
 			state <= STATE_idle;
 	end
+
+	reg [7:0] out_data_r;
+	always @(posedge clock)
+	if(reset)
+	begin
+		out_data_r <= 8'b0;
+		out_data_ready <= 1;
+	end else begin
+		if(out_data_valid & out_data_ready)
+		begin
+			out_data_r <= out_data;
+			out_data_ready <= 0;
+		end
+	end
+
+	reg [2:0] out_bit_counter;
+	always @(posedge clock)
+	if(reset)
+	begin
+		out_bit_counter <= 7;
+	end else if(state == STATE_io)
+	begin
+		if(SPI_clock_falling)
+			out_bit_counter <= out_bit_counter + 1;
+
+		if(SPI_clock_falling & out_bit_counter == 7)
+			out_data_ready <= 1;
+	end
 	
+	assign SPI_out = out_data_r[7 - out_bit_counter];
+
+	assign unused = {3'b0, SPI_clock_sampled, SPI_not_chip_select_sampled, SPI_not_chip_select_falling, SPI_in_rising, SPI_in_falling};
 endmodule
