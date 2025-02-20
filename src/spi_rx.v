@@ -21,7 +21,9 @@ module spi_rx (
 
 	input  [7:0] out_data,
 /* verilator lint_on UNUSED */
-	output reg   out_data_ready
+	output reg   out_data_ready,
+
+	output active
 );
 	/* verilator lint_off UNUSED */
 	wire [7:0] unused;
@@ -44,6 +46,7 @@ module spi_rx (
 		.falling(SPI_not_chip_select_falling),
 		.rising(SPI_not_chip_select_rising)
 	);
+	assign active = !SPI_not_chip_select_sampled;
 	wire SPI_in_sampled, SPI_in_rising, SPI_in_falling;
 	sampler SPI_in_sampler(
 		.clock(clock),
