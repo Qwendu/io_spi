@@ -111,7 +111,8 @@ module spi_rx (
 		begin
 			out_data_r <= out_data;
 			out_data_ready <= 0;
-		end
+		end else if(SPI_clock_falling & out_bit_counter == 7)
+			out_data_ready <= 1;
 	end
 
 	reg [2:0] out_bit_counter;
@@ -123,9 +124,6 @@ module spi_rx (
 	begin
 		if(SPI_clock_falling)
 			out_bit_counter <= out_bit_counter + 1;
-
-		if(SPI_clock_falling & out_bit_counter == 7)
-			out_data_ready <= 1;
 	end
 	
 	assign SPI_out = out_data_r[7 - out_bit_counter];
