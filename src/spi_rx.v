@@ -74,11 +74,11 @@ module spi_rx (
 
 	always @(posedge clock)
 	if(reset)
-		in_bit_counter <= 0;
+		in_bit_counter <= 7;
 	else case(state)
 	STATE_io:
 	begin
-		if(SPI_clock_rising)
+		if(SPI_clock_falling)
 			in_bit_counter <= in_bit_counter + 1;
 		
 		if(in_bit_counter == 7 && SPI_clock_rising)
@@ -119,10 +119,10 @@ module spi_rx (
 	always @(posedge clock)
 	if(reset)
 	begin
-		out_bit_counter <= 7;
+		out_bit_counter <= 0;
 	end else if(state == STATE_io)
 	begin
-		if(SPI_clock_falling)
+		if(SPI_clock_rising)
 			out_bit_counter <= out_bit_counter + 1;
 	end
 	
